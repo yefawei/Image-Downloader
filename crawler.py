@@ -69,24 +69,26 @@ def google_gen_query_url(keywords, face_only=False, safe_mode=False, image_type=
 
 
 def google_image_url_from_webpage(driver, max_number, quiet=False):
-    thumb_elements_old = []
+    old_thumb_elements_size = 0
     thumb_elements = []
     while True:
         try:
-            thumb_elements = driver.find_elements(By.CLASS_NAME, "rg_i")
+            thumb_elements = driver.find_elements(By.CSS_SELECTOR, ".H8Rx8c > g-img > img")
             my_print("Find {} images.".format(len(thumb_elements)), quiet)
             if len(thumb_elements) >= max_number:
                 break
-            if len(thumb_elements) == len(thumb_elements_old):
+            if len(thumb_elements) == old_thumb_elements_size:
+                my_print("There is no more data available.")
                 break
-            thumb_elements_old = thumb_elements
+            old_thumb_elements_size = len(thumb_elements)
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
-            show_more = driver.find_elements(By.CLASS_NAME, "mye4qd")
-            if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
-                my_print("Click show_more button.", quiet)
-                show_more[0].click()
-            time.sleep(3)
+            # The new version of Google Images does not have a 'load more' button.
+            # show_more = driver.find_elements(By.CLASS_NAME, "mye4qd")
+            # if len(show_more) == 1 and show_more[0].is_displayed() and show_more[0].is_enabled():
+            #     my_print("Click show_more button.", quiet)
+            #     show_more[0].click()
+            # time.sleep(3)
         except Exception as e:
             print("Exception ", e)
             pass
@@ -94,31 +96,40 @@ def google_image_url_from_webpage(driver, max_number, quiet=False):
     if len(thumb_elements) == 0:
         return []
 
-    my_print("Click on each thumbnail image to get image url, may take a moment ...", quiet)
+    my_print("Scroll to the origin ...")
+    driver.execute_script("window.scrollTo(0, 0);")
+    my_print("Sleep for 5 seconds ...")
+    time.sleep(5)
 
+    my_print("Click on each thumbnail image to get image url, may take a moment ...: {}".format(len(thumb_elements)), quiet)
+    retry_index = []
     retry_click = []
     for i, elem in enumerate(thumb_elements):
         try:
-            if i != 0 and i % 50 == 0:
-                my_print("{} thumbnail clicked.".format(i), quiet)
+            my_print("{} thumbnail clicked.".format(i), quiet)
             if not elem.is_displayed() or not elem.is_enabled():
+                retry_index.append(i)
                 retry_click.append(elem)
                 continue
             elem.click()
+            time.sleep(0.1)
         except Exception as e:
             print("Error while clicking in thumbnail:", e)
+            retry_index.append(i)
             retry_click.append(elem)
 
-    if len(retry_click) > 0:    
-        my_print("Retry some failed clicks ...", quiet)
-        for elem in retry_click:
+    if len(retry_click) > 0:
+        my_print("Retry some failed clicks ...: {}".format(len(retry_click)))
+        for i, elem in enumerate(retry_click):
             try:
+                my_print("retry {} thumbnail clicked.".format(retry_index[i]), quiet)
                 if elem.is_displayed() and elem.is_enabled():
                     elem.click()
+                    time.sleep(0.1)
             except Exception as e:
                 print("Error while retrying click:", e)
-    
-    image_elements = driver.find_elements(By.CLASS_NAME, "islib")
+
+    image_elements = driver.find_elements(By.CSS_SELECTOR, ".ob5Hkd > a")
     image_urls = list()
     url_pattern = r"imgurl=\S*&amp;imgrefurl"
 
