@@ -60,7 +60,7 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             break
 
 
-def download_images(image_urls, dst_dir, file_prefix="img", concurrency=50, timeout=20, proxy_type=None, proxy=None):
+def download_images(image_urls, dst_dir, file_prefix="img", concurrency=20, timeout=20, proxy_type=None, proxy=None):
     """
     Download image according to given urls and automatically rename them in order.
     :param timeout:

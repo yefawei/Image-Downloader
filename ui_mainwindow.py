@@ -390,7 +390,7 @@ class Ui_MainWindow(object):
         self.spinBox_num_threads.setFont(font)
         self.spinBox_num_threads.setMinimum(1)
         self.spinBox_num_threads.setMaximum(200)
-        self.spinBox_num_threads.setProperty("value", 50)
+        self.spinBox_num_threads.setProperty("value", 20)
         self.spinBox_num_threads.setObjectName("spinBox_num_threads")
         self.horizontalLayout_4.addWidget(self.spinBox_num_threads)
         self.horizontalLayout_4.setStretch(0, 2)

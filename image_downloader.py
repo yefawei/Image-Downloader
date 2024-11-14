@@ -21,7 +21,7 @@ def main(argv):
                         help="Image search engine.", choices=["chrome_headless", "chrome", "api"])
     parser.add_argument("--max-number", "-n", type=int, default=100,
                         help="Max number of images download for the keywords.")
-    parser.add_argument("--num-threads", "-j", type=int, default=50,
+    parser.add_argument("--num-threads", "-j", type=int, default=20,
                         help="Number of threads to concurrently download images.")
     parser.add_argument("--timeout", "-t", type=int, default=10,
                         help="Seconds to timeout when download an image.")
