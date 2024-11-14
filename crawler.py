@@ -199,17 +199,29 @@ def bing_get_image_url_using_api(keywords, max_number=10000, face_only=False,
         proxies = {"http": "{}://{}".format(proxy_type, proxy),
                    "https": "{}://{}".format(proxy_type, proxy)}                             
     start = 1
-    image_urls = []
-    while start <= max_number:
+    image_urls = set()
+    try_get_image_count = 0
+    while True:
         url = 'https://www.bing.com/images/async?q={}&first={}&count=35'.format(keywords, start)
+        my_print("query: {}".format(url))
         res = requests.get(url, proxies=proxies, headers=g_headers)
         res.encoding = "utf-8"
         image_urls_batch = re.findall('murl&quot;:&quot;(.*?)&quot;', res.text)
-        if len(image_urls) > 0 and image_urls_batch[-1] == image_urls[-1]:
-            break
-        image_urls += image_urls_batch
+        old_len = len(image_urls)
+        image_urls = image_urls | set(image_urls_batch)
+        if len(image_urls) >= max_number:
+            my_print("Find {} images.".format(len(image_urls)))
+            return list(image_urls)
+        my_print("Find {} images.".format(len(image_urls)))
+        if len(image_urls) == old_len:
+            try_get_image_count += 1
+            if try_get_image_count > 5:
+                return list(image_urls)
+            my_print("Attempt to obtain more {}.".format(try_get_image_count))
+        else:
+            try_get_image_count = 0
         start += len(image_urls_batch)
-    return image_urls
+    pass
 
 baidu_color_code = {
     "white": 1024, "bw": 2048, "black": 512, "pink": 64, "blue": 16, "red": 1,
