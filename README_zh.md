@@ -28,6 +28,12 @@ python image_downloader_gui.py
 
 ![GUI](/GUI.png)
 
+编译GUI程序
+
+```bash
+pyinstaller -w -F -p ./ .\image_downloader_gui.py
+```
+
 ### 3.2 命令行
 
 ```bash

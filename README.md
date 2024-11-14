@@ -30,6 +30,12 @@ python image_downloader_gui.py
 
 ![GUI](/GUI.png)
 
+Compile GUI program
+
+```bash
+pyinstaller -w -F -p ./ .\image_downloader_gui.py
+```
+
 ### 3.2 CMD
 
 ```bash
