@@ -350,12 +350,13 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
     if browser != "api":
         browser = str.lower(browser)
         chrome_path = shutil.which("chromedriver")
+        chrome_service = webdriver.ChromeService(chrome_path)
         chrome_options = webdriver.ChromeOptions()
         if "headless" in browser:
             chrome_options.add_argument("headless")
         if proxy is not None and proxy_type is not None:
             chrome_options.add_argument("--proxy-server={}://{}".format(proxy_type, proxy))
-        driver = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options, service=chrome_service)
 
         if engine == "Google":
             driver.set_window_size(1920, 1080)
