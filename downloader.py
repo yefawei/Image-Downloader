@@ -6,7 +6,7 @@
 from __future__ import print_function
 
 import shutil
-import imghdr
+from PIL import Image
 import os
 import concurrent.futures
 import requests
@@ -16,10 +16,17 @@ headers = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Proxy-Connection": "keep-alive",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
+                  "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
     "Accept-Encoding": "gzip, deflate, sdch",
     # 'Connection': 'close',
 }
+
+def get_image_format(file_path):
+    try:
+        with Image.open(file_path) as img:
+            return img.format.lower()
+    except IOError:
+        return None
 
 def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, proxy=None):
     proxies = None
@@ -40,9 +47,9 @@ def download_image(image_url, dst_dir, file_name, timeout=20, proxy_type=None, p
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             response.close()
-            file_type = imghdr.what(file_path)
+            file_type = get_image_format(file_path)
             # if file_type is not None:
-            if file_type in ["jpg", "jpeg", "png", "bmp", "webp"]:
+            if file_type in ["jpg", "jpeg", "png", "bmp", "webp", "tiff", "svg", "gif"]:
                 new_file_name = "{}.{}".format(file_name, file_type)
                 new_file_path = os.path.join(dst_dir, new_file_name)
                 shutil.move(file_path, new_file_path)
