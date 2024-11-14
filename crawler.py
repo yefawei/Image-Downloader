@@ -242,11 +242,25 @@ def baidu_gen_query_url(keywords, face_only=False, safe_mode=False, color=None):
     return query_url
 
 
-def baidu_image_url_from_webpage(driver):
+def baidu_image_url_from_webpage(driver, max_number):
+    my_print("Wait for the browser to load for 10 seconds")
     time.sleep(10)
-    image_elements = driver.find_elements(By.CLASS_NAME, "imgitem")
-    image_urls = list()
 
+    image_urls = list()
+    old_img_count = 0
+    while True:
+        image_elements = driver.find_elements(By.CLASS_NAME, "imgitem")
+        my_print("Find {} images.".format(len(image_elements)))
+        if len(image_elements) >= max_number:
+            break
+        if len(image_elements) == old_img_count:
+            my_print("There is no more data available.")
+            break
+        old_img_count = len(image_elements)
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(2)
+
+    my_print("Get image URL")
     for image_element in image_elements:
         image_url = image_element.get_attribute("data-objurl")
         image_urls.append(image_url)
@@ -393,9 +407,9 @@ def crawl_image_urls(keywords, engine="Google", max_number=10000,
             driver.get(query_url)
             image_urls = bing_image_url_from_webpage(driver, max_number)
         else:   # Baidu
-            driver.set_window_size(10000, 7500)
+            driver.set_window_size(1920, 1080)
             driver.get(query_url)
-            image_urls = baidu_image_url_from_webpage(driver)
+            image_urls = baidu_image_url_from_webpage(driver, max_number)
         driver.close()
     else: # api
         if engine == "Baidu":
